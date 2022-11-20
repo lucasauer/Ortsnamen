@@ -13,6 +13,10 @@ How to:
 library(shiny)
 runGitHub("lucasauer/Ortsnamen")
 ```
+oder:
+
+https://lucasauer.shinyapps.io/ortsnamen/
+
 
 ## Stand (WiP)
 

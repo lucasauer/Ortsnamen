@@ -11,7 +11,7 @@ How to:
 ## Run in R 
 ## (install shiny package first if necessary)
 library(shiny)
-runGithub("lucasauer/Ortsnamen")
+runGitHub("lucasauer/Ortsnamen")
 ```
 
 ## Stand (WiP)

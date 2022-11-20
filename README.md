@@ -16,7 +16,7 @@ runGithub("lucasauer/Ortsnamen")
 
 ## Stand (WiP)
 
-* Darstellung der Lage der Ortschaften mit bestimmten Wortteilen im Namen über R shiny App (Datei [app.R](https://github.com/lucasauer/Ortsnamen/main/app.R))
+* Darstellung der Lage der Ortschaften mit bestimmten Wortteilen im Namen über R shiny App (Datei app.R)
 * Benötigte Daten in zwei .RData Dateien (Quelle für Daten?)
 
 

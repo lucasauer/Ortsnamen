@@ -1,11 +1,14 @@
+##############################################################################
+## Darstellung ausgewaehlter Ortsnamen auf einer Deutschlandkarte mit shiny ##
+##############################################################################
+
+## TODO: Funktionen verallgemeinern
+
 library(shiny)
 library(ggplot2)
 library(mapdata)
 
-## TODO: Klein ohne Gross, und fertige Daten hier schon einlesen (also orte und
-## nur_klein)
-
-setwd("~/Desktop/Orte mit Wenden")
+## Download required data from repository
 load("dat.RData")
 load("nur_klein.RData")
 orte <- dat[, c("ORT_NAME", "ORT_LAT", "ORT_LON", "POSTLEITZAHL")]
@@ -17,14 +20,17 @@ namen <- sort(c("wenig", "wendisch", "wind", "böhmisch", "welsch", "klein",
 
 ## Einstellen der Farben
 
-## Standardfarbpalette ggplot
+## gg_color_hue: recieve standard ggplot color palette 
+## input: n, integer, number of colors
+## output: vector of color hex codes
 gg_color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
+    hues <- seq(15, 375, length = n + 1)
     hcl(h = hues, l = 65, c = 100)[1:n]
 }
 colors <- gg_color_hue(7)
 
-## Variable fuer die Farben
+## TODO: Am besten Faktor draus machen
+## helper for ggplot colors
 set_color <- function(data, names) {
     n <- length(names)
     color <- character(nrow(data))
@@ -38,7 +44,8 @@ set_color <- function(data, names) {
 
 orte$color <- set_color(orte, namen)
 
-## Karte von Deutschland
+
+## create a map of germany
 germany <- map_data("worldHires", region = "Germany")
 map_de <- ggplot() + 
     geom_polygon(data = germany, 
@@ -53,7 +60,10 @@ map_de <- ggplot() +
           axis.line = element_line(colour = "white"))
 
 
-## Extrahiere zu plottende Orte
+## extract_orte: extract only towns that contain specific character strings in their names
+## input: names, vector of character strings (specific substrings of town names)
+##        os, data.frame as orte created from dat.RData
+## output: data.frame only containing towns with specific names
 extract_orte <- function(names = namen, os = orte) {
     o <- data.frame()
     for(n in seq_along(names)) {
@@ -62,7 +72,12 @@ extract_orte <- function(names = namen, os = orte) {
     o
 }
 
-## Plotte verschiedene Ortsnamen
+## plotArbitraryNames: plot location of specific towns
+## input: names, vector of character strings (specific substrings of town names)
+##        kOG, logical, if TRUE only plot towns with "klein" without
+##          corresponding town contraining "groß"
+##        preset_colors, logical, if TRUE uses a vector named colors with color
+##          hex codes
 plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
     if(length(names) < 1) {
         map_de
@@ -88,10 +103,8 @@ plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
     }
 }
 
-## Klein ohne Gross
 
-
-# Define UI for application that draws a histogram
+# Define UI for application
 ui <- fluidPage(
 
     # Application title
@@ -101,7 +114,7 @@ ui <- fluidPage(
         plotOutput("map")
     ),
     
-    # Sidebar with a slider input for number of bins 
+    # Sidebar 
     fixedRow(
         
         column(3, 
@@ -125,14 +138,10 @@ ui <- fluidPage(
                h3("Bestätigen"),
                submitButton("Submit"))
         
-    ),
-    
-    # sidebarPanel(
-    #     textOutput("test")
-    # )
+    )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required
 server <- function(input, output) {
     
     output$map <- renderPlot({ 
@@ -140,11 +149,10 @@ server <- function(input, output) {
                            kOG = input$klein)
 
     })
-    
-    # output$test <- renderText({
-    #     str(input$checkGroup)
-    # })
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+                            
+                            

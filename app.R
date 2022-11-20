@@ -3,6 +3,7 @@
 ##############################################################################
 
 ## TODO: Funktionen verallgemeinern
+## TODO: Bisschen Beschreibung auf die App, insb. was ist klein ohne gross
 
 library(shiny)
 library(ggplot2)

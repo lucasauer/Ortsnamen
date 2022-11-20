@@ -4,6 +4,7 @@
 
 ## TODO: Funktionen verallgemeinern
 ## TODO: Bisschen Beschreibung auf die App, insb. was ist klein ohne gross
+## TODO: Funktioniert das mit runGithub() ohne besondere encoding Einstellungen?
 
 library(shiny)
 library(ggplot2)

@@ -26,6 +26,7 @@ https://lucasauer.shinyapps.io/ortsnamen/
 
 ## Roadmap
 
+* Große deutsche Städte zur Orientierung eintragen
 * Code verallgemeinern
 * Encoding anpassen wg. windows?
 * Nur klein gegen groß Vergleich, was ist mit anderen Fällen

@@ -31,3 +31,5 @@ https://lucasauer.shinyapps.io/ortsnamen/
 * Encoding anpassen wg. windows?
 * Nur klein gegen groß Vergleich, was ist mit anderen Fällen
 * Beschreibung in der App zum besseren Verständnis
+* Textfeld für (einen) extra Namen, für den Orte angezeigt werden sollen
+* Tabelle mit den angezeigten Orten ausgeben(?)

@@ -47,6 +47,11 @@ set_color <- function(data, names) {
 
 orte$color <- set_color(orte, namen)
 
+## data of some big cities
+cities <- orte[orte$POSTLEITZAHL %in% c(60310, 80333, 10115, 20095, 50676), ]
+cities <- cities[!duplicated(cities$POSTLEITZAHL), ]
+cities$ORT_NAME <- c("Hamburg", "Köln", "Frankfurt", "München", "Berlin")
+
 
 ## create a map of germany
 germany <- map_data("worldHires", region = "Germany")
@@ -83,7 +88,10 @@ extract_orte <- function(names = namen, os = orte) {
 ##          hex codes
 plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
     if(length(names) < 1) {
-        map_de
+        map_de +
+          geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
+          geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
+                                               label = ORT_NAME), vjust = -0.5)
     } else {
         if((!kOG) | (kOG & !("klein" %in% names))) {
             orte <- extract_orte(names)
@@ -99,9 +107,15 @@ plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
                   legend.text = element_text(size = 12))  
         if(preset_colors & length(names) > 0) {
             index <- sapply(names, function(n) which(namen == n))
-            plt + scale_color_manual(values = colors[index])
+            plt + scale_color_manual(values = colors[index]) +
+              geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
+              geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
+                        label = ORT_NAME), vjust = -0.5)
         } else {
-            plt
+            plt +
+            geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
+            geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
+                      label = ORT_NAME), vjust = -0.5)
         }   
     }
 }
@@ -109,7 +123,7 @@ plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
 
 # Define UI for application
 ui <- fluidPage(
-
+    
     # Application title
     titlePanel("Verteilung bestimmter deutscher Ortsnamen"),
     
@@ -150,12 +164,10 @@ server <- function(input, output) {
     output$map <- renderPlot({ 
         plotArbitraryNames(names = namen[sort(as.numeric(input$checkGroup))],
                            kOG = input$klein)
-
+        
     })
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
 
-                            
-                            

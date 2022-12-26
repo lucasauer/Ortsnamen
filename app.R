@@ -69,6 +69,12 @@ setInput <- function(l, namen) {
 ## input: names, vector of character strings (specific substrings of town names)
 ## output: data.frame only containing towns with specific names
 extractOrte <- function(namen, orte = Orte) {
+  
+  if(length(namen) < 1) {
+    return(data.frame("ORT_NAME" = NA, "ORT_LAT" = NA,
+                      "ORT_LON" = NA, "Postleitzahl" = NA))
+  }
+  
   extr <- lapply(namen, function(n) orte[grepl(n, orte$ORT_NAME, fixed = TRUE), ])
   extr <- do.call("rbind", setInput(extr, namen))
   extr$name <- factor(extr$name, 

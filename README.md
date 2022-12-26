@@ -21,7 +21,7 @@ https://lucasauer.shinyapps.io/ortsnamen/
 ## Stand
 
 * Darstellung der Lage der Ortschaften mit bestimmten Wortteilen im Namen über R shiny App (Datei app.R)
-* Möglichkeit der Darstellung eines weiteren Wortteils
+* Möglichkeit der Darstellung eines zusätzlichen (nicht vorgegebenen) Wortteils
 * Benötigte Daten in zwei .RData Dateien (Quelle für Daten?)
 
 

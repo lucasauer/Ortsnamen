@@ -18,7 +18,7 @@ oder (nicht auf aktuellem Stand):
 https://lucasauer.shinyapps.io/ortsnamen/
 
 
-## Stand (WiP)
+## Stand
 
 * Darstellung der Lage der Ortschaften mit bestimmten Wortteilen im Namen über R shiny App (Datei app.R)
 * Möglichkeit der Darstellung eines weiteren Wortteils

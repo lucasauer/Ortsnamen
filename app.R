@@ -13,6 +13,9 @@ library(mapdata)
 load("dat.RData")
 load("nur_klein.RData")
 Orte <- dat[, c("ORT_NAME", "ORT_LAT", "ORT_LON", "POSTLEITZAHL")]
+PLZ_0 <- Orte$POSTLEITZAHL %/% 10000 == 0
+Orte$POSTLEITZAHL[PLZ_0] <- paste0("0", Orte$POSTLEITZAHL[PLZ_0])
+Orte$POSTLEITZAHL <- as.factor(Orte$POSTLEITZAHL)
 Orte$ORT_NAME <- tolower(orte$ORT_NAME)
 
 Namen <- sort(c("wenig", "wendisch", "wind", "böhmisch", "welsch", "klein", 
@@ -115,7 +118,6 @@ plotArbitraryNames <- function(namen, kOG = FALSE) {
       geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
       geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
                                              label = ORT_NAME), vjust = -0.5)
-    
   }
 }
 
@@ -127,34 +129,32 @@ ui <- fluidPage(
     titlePanel("Verteilung bestimmter deutscher Ortsnamen"),
     
     mainPanel(
-        plotOutput("map")
+      tabsetPanel(
+        tabPanel("Karte", plotOutput("map")), 
+        tabPanel("Liste", dataTableOutput("list")), 
+      )
     ),
     
     # Sidebar 
     fixedRow(
-        
-        column(3, 
-               checkboxGroupInput("checkGroup", 
-                                  h3("Auswahl darzustellender Ortsnamen"), 
-                                  choices = list("böhmisch" = 1, 
-                                                 "klein" = 2, 
-                                                 "welsch" = 3,
-                                                 "wendisch" = 4,
-                                                 "wenig" = 5,
-                                                 "wind" = 6,
-                                                 "winn" = 7),
-                                  selected = 5),
-               textInput("Sonst", "Anderer Ortsname")),
-        
-        column(3,
-               h3("Klein ohne zugehöriges Groß"),
-               checkboxInput("klein", "Klein ohne Groß", value = FALSE)),
-        
-        
-        column(3,
-               h3("Bestätigen"),
-               submitButton("Submit"))
-        
+      
+      column(3, 
+             checkboxGroupInput("checkGroup", 
+                                h3("Auswahl darzustellender Ortsnamen"), 
+                                choices = list("böhmisch" = 1, 
+                                               "klein" = 2, 
+                                               "welsch" = 3,
+                                               "wendisch" = 4,
+                                               "wenig" = 5,
+                                               "wind" = 6,
+                                               "winn" = 7),
+                                selected = 5),
+             textInput("Sonst", "Anderer Ortsname"),
+             br(),
+             h3("Klein ohne zugehöriges Groß"),
+             checkboxInput("klein", "Klein ohne Groß", value = FALSE),
+             br(),
+             submitButton("Bestätigen"))
     )
 )
 
@@ -162,16 +162,25 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     output$map <- renderPlot({
-        nms <- namen[sort(as.numeric(input$checkGroup))]
-        sonst <- as.character(input$Sonst)
+        nms <- Namen[sort(as.numeric(input$checkGroup))]
+        sonst <- tolower(as.character(input$Sonst))
         if(sonst != "") {
           nms <- c(nms, sonst)
         }
         plotArbitraryNames(namen = nms, kOG = input$klein)
-        
+    })
+    
+   output$list <- renderDataTable({
+     nms <- Namen[sort(as.numeric(input$checkGroup))]
+     sonst <- tolower(as.character(input$Sonst))
+     if(sonst != "") {
+       nms <- c(nms, sonst)
+     }
+     extr <- extractOrte(namen = nms)[, 1:4]
+     colnames(extr) <- c("Ortsname", "Breitengrad", "Längengrad", "PLZ")
+     extr
     })
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-

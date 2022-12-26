@@ -4,8 +4,6 @@
 
 ## TODO: Funktionen verallgemeinern
 ## TODO: Bisschen Beschreibung auf die App, insb. was ist klein ohne gross
-## TODO: Funktioniert das mit runGithub() ohne besondere encoding Einstellungen?
-##  insb. fuer windows
 
 library(shiny)
 library(ggplot2)
@@ -14,110 +12,111 @@ library(mapdata)
 ## Download required data from repository
 load("dat.RData")
 load("nur_klein.RData")
-orte <- dat[, c("ORT_NAME", "ORT_LAT", "ORT_LON", "POSTLEITZAHL")]
-orte$ORT_NAME <- tolower(orte$ORT_NAME)
+Orte <- dat[, c("ORT_NAME", "ORT_LAT", "ORT_LON", "POSTLEITZAHL")]
+Orte$ORT_NAME <- tolower(orte$ORT_NAME)
 
-namen <- sort(c("wenig", "wendisch", "wind", "böhmisch", "welsch", "klein", 
+Namen <- sort(c("wenig", "wendisch", "wind", "böhmisch", "welsch", "klein", 
                 "winn"))
 
 
-## Einstellen der Farben
+## Preset colors for considered names (plus one for an arbitrary name) 
+colors <- c("#F8766D", "#CD9600", "#7CAE00", "#00BE67", "#00BFC4", "#00A9FF",
+            "#C77CFF", "#FF61CC")
 
-## gg_color_hue: recieve standard ggplot color palette 
-## input: n, integer, number of colors
-## output: vector of color hex codes
-gg_color_hue <- function(n) {
-    hues <- seq(15, 375, length = n + 1)
-    hcl(h = hues, l = 65, c = 100)[1:n]
-}
-colors <- gg_color_hue(7)
 
-## TODO: Am besten Faktor draus machen
-## helper for ggplot colors
-set_color <- function(data, names) {
-    n <- length(names)
-    color <- character(nrow(data))
-    colors <- gg_color_hue(n)
-    for(name in names) {
-        pos <- grepl(name, orte$ORT_NAME, fixed = TRUE)
-        color[pos] <- ifelse(color[pos] == "", name, color[pos])
-    }
-    ifelse(color == "", NA, color)
-}
+## Create a map of Germany
+germany <- map_data("worldHires", region = "Germany")
+map_de <- ggplot() + 
+  geom_polygon(data = germany, 
+               aes(x = long, y = lat, group = group), 
+               fill = "grey", alpha = 0.8) +
+  theme(aspect.ratio = 1) + 
+  theme_bw() + 
+  theme(aspect.ratio = 1, axis.title.x=element_blank(),
+        axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+        axis.title.y = element_blank(), panel.border = element_blank(), 
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "white"))
 
-orte$color <- set_color(orte, namen)
 
-## data of some big cities
-cities <- orte[orte$POSTLEITZAHL %in% c(60310, 80333, 10115, 20095, 50676), ]
+## ... add some points for 5 big cities
+cities <- Orte[Orte$POSTLEITZAHL %in% c(60310, 80333, 10115, 20095, 50676), ]
 cities <- cities[!duplicated(cities$POSTLEITZAHL), ]
 cities$ORT_NAME <- c("Hamburg", "Köln", "Frankfurt", "München", "Berlin")
 
-
-## create a map of germany
-germany <- map_data("worldHires", region = "Germany")
-map_de <- ggplot() + 
-    geom_polygon(data = germany, 
-                 aes(x = long, y = lat, group = group), 
-                 fill = "grey", alpha = 0.8) +
-    theme_bw() + 
-    theme(aspect.ratio = 1, axis.title.x=element_blank(),
-          axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-          axis.text.y = element_blank(), axis.ticks.y = element_blank(),
-          axis.title.y = element_blank(), panel.border = element_blank(), 
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          axis.line = element_line(colour = "white"))
+mapWithCities <- map_de +
+  geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
+  geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
+                                         label = ORT_NAME), vjust = -0.5)
 
 
-## extract_orte: extract only towns that contain specific character strings in their names
-## input: names, vector of character strings (specific substrings of town names)
-##        os, data.frame as orte created from dat.RData
-## output: data.frame only containing towns with specific names
-extract_orte <- function(names = namen, os = orte) {
-    o <- data.frame()
-    for(n in seq_along(names)) {
-        o <- rbind(o, os[grepl(names[n], os$ORT_NAME, fixed = TRUE) & os$color == names[n], ]) 
-    }
-    o
+## setInput: Helper for extractOrte; connects place name to respective input
+setInput <- function(l, namen) {
+  for(i in seq_along(l)) {
+    l[[i]]$name <- namen[i] 
+  }
+  l
 }
 
-## plotArbitraryNames: plot location of specific towns
+
+## extract_orte: extract only places that contain specific character strings in 
+##  their names
 ## input: names, vector of character strings (specific substrings of town names)
+## output: data.frame only containing towns with specific names
+extractOrte <- function(namen, orte = Orte) {
+  extr <- lapply(namen, function(n) orte[grepl(n, orte$ORT_NAME, fixed = TRUE), ])
+  extr <- do.call("rbind", setInput(extr, namen))
+  extr$name <- factor(extr$name, 
+                      levels = c(sort(Namen), 
+                                 sort(namen[!(namen %in% Namen)])))
+  
+  if(anyDuplicated(extr)) {
+    warning(paste(sum(duplicated(extr)), "place name(s) suit(s) several inputs.
+      Duplicate(s) to be removed."))
+  }
+  
+  extr[!duplicated(extr$ORT_NAME), ]
+}
+
+
+## plotArbitraryNames: plot location of specific towns
+## input: namen, vector of character strings (specific substrings of town names)
 ##        kOG, logical, if TRUE only plot towns with "klein" without
 ##          corresponding town contraining "groß"
-##        preset_colors, logical, if TRUE uses a vector named colors with color
-##          hex codes
-plotArbitraryNames <- function(names, kOG = FALSE, preset_colors = TRUE) {
-    if(length(names) < 1) {
-        map_de +
-          geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
-          geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
-                                               label = ORT_NAME), vjust = -0.5)
-    } else {
-        if((!kOG) | (kOG & !("klein" %in% names))) {
-            orte <- extract_orte(names)
-        } else {
-            os <- orte[!grepl("klein", orte$ORT_NAME, fixed = TRUE), ]
-            os <- rbind(os, orte[orte$ORT_NAME %in% nur_klein, ])
-            orte <- extract_orte(names = names, os = os)
-        }
-        plt <- map_de +
-            geom_point(data = orte, aes(x = ORT_LON, y = ORT_LAT, col = color)) +
-            labs(col = "Orte mit... im Namen") +
-            theme(legend.title = element_text(size = 14),
-                  legend.text = element_text(size = 12))  
-        if(preset_colors & length(names) > 0) {
-            index <- sapply(names, function(n) which(namen == n))
-            plt + scale_color_manual(values = colors[index]) +
-              geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
-              geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
-                        label = ORT_NAME), vjust = -0.5)
-        } else {
-            plt +
-            geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
-            geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
-                      label = ORT_NAME), vjust = -0.5)
-        }   
+plotArbitraryNames <- function(namen, kOG = FALSE) {
+  
+  if(length(namen) < 1) {
+    mapWithCities
+  } else {
+    if(all(namen %in% Namen)) {
+      namen <- sort(namen)
+      nam <- Namen
+    } else if(sum(!(namen %in% Namen)) == 1) {
+      sonst <- namen[which(!(namen %in% Namen))]
+      namen <- sort(namen[-which(!(namen %in% Namen))])
+      namen <- c(namen, sonst)
+      nam <- c(Namen, sonst)
     }
+    
+    if((!kOG) | (kOG & !("klein" %in% namen))) {
+      orte <- extractOrte(namen)
+    } else {
+      os <- Orte[!grepl("klein", orte$ORT_NAME, fixed = TRUE), ]
+      os <- rbind(os, Orte[orte$ORT_NAME %in% nur_klein, ])
+      orte <- extractOrte(namen = namen, orte = os)
+    }
+    
+    index <- sapply(namen, function(n) which(nam == n))
+    map_de +
+      geom_point(data = orte, aes(x = ORT_LON, y = ORT_LAT, col = name)) +
+      labs(col = "Orte mit... im Namen") + 
+      scale_color_manual(values = colors[index]) + 
+      geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
+      geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
+                                             label = ORT_NAME), vjust = -0.5)
+    
+  }
 }
 
 
@@ -144,7 +143,8 @@ ui <- fluidPage(
                                                  "wenig" = 5,
                                                  "wind" = 6,
                                                  "winn" = 7),
-                                  selected = 5)),
+                                  selected = 5),
+               textInput("Sonst", "Anderer Ortsname")),
         
         column(3,
                h3("Klein ohne zugehöriges Groß"),
@@ -161,9 +161,13 @@ ui <- fluidPage(
 # Define server logic required
 server <- function(input, output) {
     
-    output$map <- renderPlot({ 
-        plotArbitraryNames(names = namen[sort(as.numeric(input$checkGroup))],
-                           kOG = input$klein)
+    output$map <- renderPlot({
+        nms <- namen[sort(as.numeric(input$checkGroup))]
+        sonst <- as.character(input$Sonst)
+        if(sonst != "") {
+          nms <- c(nms, sonst)
+        }
+        plotArbitraryNames(namen = nms, kOG = input$klein)
         
     })
 }

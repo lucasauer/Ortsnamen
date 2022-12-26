@@ -22,6 +22,7 @@ https://lucasauer.shinyapps.io/ortsnamen/
 
 * Darstellung der Lage der Ortschaften mit bestimmten Wortteilen im Namen über R shiny App (Datei app.R)
 * Möglichkeit der Darstellung eines zusätzlichen (nicht vorgegebenen) Wortteils
+* Darstellung der betrachteten Orte in Tabellenform
 * Benötigte Daten in zwei .RData Dateien (Quelle für Daten?)
 
 
@@ -29,5 +30,4 @@ https://lucasauer.shinyapps.io/ortsnamen/
 
 * Nur klein gegen groß Vergleich, was ist mit anderen Fällen
 * Beschreibung in der App zum besseren Verständnis
-* Tabelle mit den angezeigten Orten ausgeben
 * Bsp. Dortmund: Kein Ort in Daten als "Dortmund" eingegeben (nur Orts- bzw. Stadtteile)

@@ -13,7 +13,7 @@ How to:
 library(shiny)
 runGitHub("lucasauer/Ortsnamen")
 ```
-oder:
+oder (kein aktueller Stand):
 
 https://lucasauer.shinyapps.io/ortsnamen/
 

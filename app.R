@@ -4,6 +4,7 @@
 
 ## TODO: Funktionen verallgemeinern
 ## TODO: Bisschen Beschreibung auf die App, insb. was ist klein ohne gross
+## TODO: Legende und Karte groesser
 
 library(shiny)
 library(ggplot2)
@@ -129,6 +130,19 @@ ui <- fluidPage(
     titlePanel("Verteilung bestimmter deutscher Ortsnamen"),
     
     mainPanel(
+      h3("Hintergrund"),
+      h5("Vermutete Fehlübersetzung von Ortsnamen aus dem 
+         lateinischen ins Deutsche in Bezug auf Ortschaften, die auf eine 
+         Gründung von slawischen Siedlern (Wenden) zurückzuführen sind 
+         (https://de.wikipedia.org/wiki/Ortsname#Namenszusätze)"),
+      h3("Interaktive Darstellung"),
+      h5('Anhand der Einstellungsmöglichkeiten auf der rechten Seite wird die 
+         Verteilung von Orten, die gewisse Wortteile in ihrem Namen haben, auf 
+         einer Deutschlandkarte dargestellt. Durch Klicken auf den Reiter "Liste"
+         kann eingesehen werden, welche Orte auf der Karte markiert sind.
+         Standardmäßig dargestellt sind beispielsweise die 17 Orte in 
+         Deutschland, die das Wort "wenig" in ihrem Ortsnamen enthalten.'),
+      br(),
       tabsetPanel(
         tabPanel("Karte", plotOutput("map")), 
         tabPanel("Liste", dataTableOutput("list")), 
@@ -151,7 +165,15 @@ ui <- fluidPage(
                                 selected = 5),
              textInput("Sonst", "Anderer Ortsname"),
              br(),
-             h3("Klein ohne zugehöriges Groß"),
+             h5('Die Vermutung liegt nahe, dass ein Ort, der "klein" im Namen
+                enthält nicht falsch übersetzt wurde, wenn es einen "dazugehörigen"
+                Ort gibt, der "groß" im Namen enthält. Zum Beispiel existieren 
+                die Orte Kleinostheim und Großostheim. Es ist demnach nicht
+                davon auszugehen, dass der Ortsname Kleinostheim auf eine
+                Siedlung der Wenden zurükzuführen ist.'),
+             h5('Hier kann eingestellt werden, dass nur die Orte mit "klein" 
+                im Namen angezeigt werden, zu denen kein analoger Ort mit "groß" 
+                im Namen existiert.'),
              checkboxInput("klein", "Klein ohne Groß", value = FALSE),
              br(),
              submitButton("Bestätigen"))

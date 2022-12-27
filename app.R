@@ -124,7 +124,9 @@ plotArbitraryNames <- function(namen, kOG = FALSE) {
       scale_color_manual(values = colors[index]) + 
       geom_point(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT)) +
       geom_text(data = cities, mapping = aes(x = ORT_LON, y = ORT_LAT, 
-                                             label = ORT_NAME), vjust = -0.5)
+                                             label = ORT_NAME), vjust = -0.5) +
+      theme(legend.text = element_text(size = 14),
+            legend.title = element_text(size = 14))
   }
 }
 

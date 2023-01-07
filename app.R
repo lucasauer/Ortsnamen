@@ -18,7 +18,7 @@ Orte <- dat[, c("ORT_NAME", "ORT_LAT", "ORT_LON", "POSTLEITZAHL")]
 PLZ_0 <- Orte$POSTLEITZAHL %/% 10000 == 0
 Orte$POSTLEITZAHL[PLZ_0] <- paste0("0", Orte$POSTLEITZAHL[PLZ_0])
 Orte$POSTLEITZAHL <- as.factor(Orte$POSTLEITZAHL)
-Orte$ORT_NAME <- tolower(orte$ORT_NAME)
+Orte$ORT_NAME <- tolower(Orte$ORT_NAME)
 
 Namen <- sort(c("wenig", "wendisch", "wind", "böhmisch", "welsch", "klein", 
                 "winn"))

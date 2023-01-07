@@ -3,8 +3,9 @@
 ##############################################################################
 
 ## TODO: Funktionen verallgemeinern
-## TODO: Bisschen Beschreibung auf die App, insb. was ist klein ohne gross
 ## TODO: Legende und Karte groesser
+## TODO: Fehler beheben, wenn keine Auswahl getroffen oder Auswahl keine 
+##  Eregbnisse hat
 
 library(shiny)
 library(ggplot2)

@@ -29,5 +29,5 @@ https://lucasauer.shinyapps.io/ortsnamen/
 ## Roadmap
 
 * Nur klein gegen groß Vergleich, was ist mit anderen Fällen
-* Beschreibung in der App zum besseren Verständnis
 * Bsp. Dortmund: Kein Ort in Daten als "Dortmund" eingegeben (nur Orts- bzw. Stadtteile)
+* Fehler beheben, wenn keine Auswahl getroffen wurde oder eine Auswahl die keine Ergebnisse liefert
